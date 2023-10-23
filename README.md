@@ -1,7 +1,7 @@
 # Emerging Technologies 3 in CPE (Mobile Computing)
 
-**Mobile Application Development | Uranus-7**
-**CPE41s4 | Uranus-7**
+**Mobile Application Development | Uranus-7** <br>
+**CPE026| CPE41s4** <br>
 A simple Messaging App
 
 This README provides instructions on how to initialize an Expo app and install the necessary dependencies for your project. Expo is a powerful tool that streamlines the development process for creating mobile apps using React Native.
