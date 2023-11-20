@@ -1,14 +1,36 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import Status from "./components/Status";
+import MessageList from "./components/MessageList";
+import {
+  createImageMessage,
+  createLocationMessage,
+  createTextMessage,
+} from "./utils/MessageUtils";
 
-export default function App() {
+const App = () => {
+  const [messages] = useState([
+    createImageMessage("https://unsplash.it/300/300"),
+    createTextMessage("World"),
+    createTextMessage("Hello"),
+    createLocationMessage({
+      latitude: 37.78825,
+      longitude: -122.4324,
+    }),
+  ]);
+
+  const handlePressMessage = (message) => {
+    console.log("Message pressed", message);
+  };
+
   return (
     <View style={styles.container}>
-      <Status />
+      <View style={styles.content}>
+        <MessageList messages={messages} onPressMessage={handlePressMessage} />
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -20,6 +42,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: "white",
+    width: "100%",
   },
   inputMethodEditor: {
     flex: 1,
@@ -31,3 +54,5 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
 });
+
+export default App;

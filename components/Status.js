@@ -1,83 +1,96 @@
-import { Constants } from "expo";
-import { Platform, StatusBar, StyleSheet, Text, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  StatusBar,
+  View,
+  StyleSheet,
+  Animated,
+  Easing,
+  Text,
+} from "react-native";
 import NetInfo from "@react-native-community/netinfo";
-import React from "react";
 
-export default class Status extends React.Component {
-  state = {
-    isConnected: false,
+export default function Status() {
+  const [isConnected, setIsConnected] = useState(true);
+  const [animation] = useState(new Animated.Value(0));
+  const backgroundColor = isConnected ? "green" : "red";
+
+  const statusBar = (
+    <StatusBar
+      backgroundColor={backgroundColor}
+      barStyle={isConnected ? "dark-content" : "light-content"}
+      animated={false}
+    />
+  );
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsConnected(state.isConnected);
+      animateStatusBubble();
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const animateStatusBubble = () => {
+    Animated.sequence([
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }),
+      Animated.timing(animation, {
+        toValue: 0,
+        duration: 500,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+        delay: 1000, // Wait for 1 second before disappearing
+      }),
+    ]).start();
   };
 
-  componentDidMount() {
-    this.unsubscribe = NetInfo.addEventListener((state) => {
-      this.setState({ isConnected: state.isConnected });
-    });
-  }
+  const statusBackgroundColor = isConnected ? "green" : "red";
+  const bubbleStyle = {
+    backgroundColor: statusBackgroundColor,
+    transform: [
+      {
+        scale: animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        }),
+      },
+    ],
+  };
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  render() {
-    const { isConnected } = this.state;
-    const backgroundColor = isConnected ? "white" : "red";
-
-    const statusBar = (
-      <StatusBar
-        backgroundColor={backgroundColor}
-        barStyle={isConnected ? "dark-content" : "light-content"}
-        animated={false}
-      />
-    );
-    const messageContainer = (
-      <View style={styles.messageContainer} pointerEvents={"none"}>
-        {statusBar}
-        {!isConnected && (
-          <View style={styles.bubble}>
-            <Text style={styles.text}>No network connection</Text>
-          </View>
-        )}
-      </View>
-    );
-
-    if (Platform.OS === "ios") {
-      return (
-        <View style={[styles.status, { backgroundColor }]}>
-          {messageContainer}
-        </View>
-      );
-    }
-    return messageContainer;
-  }
+  return (
+    <View style={styles.container}>
+      {statusBar}
+      <Animated.View style={[styles.statusBubble, bubbleStyle]}>
+        <Text style={styles.statusText}>
+          {isConnected ? "Connected to the Internet" : "Network Disconnected"}
+        </Text>
+      </Animated.View>
+    </View>
+  );
 }
 
-const statusHeight = Platform.OS == "ios" ? Constants.statusBarHeight : 0;
 const styles = StyleSheet.create({
-  status: {
-    zIndex: 1,
-    height: statusHeight,
-  },
-  messageContainer: {
-    zIndex: 1,
+  container: {
     position: "absolute",
-    top: statusHeight + 20,
-    right: 0,
+    top: 0,
     left: 0,
-    height: 80,
-    alignItems: "center",
+    right: 0,
+    zIndex: 1,
   },
-  connectedMessage: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+  statusBubble: {
+    backgroundColor: "green", // Default color
+    padding: 10,
     borderRadius: 20,
-    backgroundColor: "green",
+    alignSelf: "center",
+    position: "absolute",
+    top: 15,
+  },
+  statusText: {
     color: "white",
-  },
-
-  bubble: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: "red",
   },
 });
