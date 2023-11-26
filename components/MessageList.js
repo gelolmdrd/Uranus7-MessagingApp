@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   messageBubble: {
-    backgroundColor: "#4285f4",
+    backgroundColor: "blue",
     padding: 10,
     borderRadius: 20,
   },
